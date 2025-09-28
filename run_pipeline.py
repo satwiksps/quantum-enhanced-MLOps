@@ -7,6 +7,7 @@ from src.production_monitoring.monitor_with_qsvm import run_drift_detection
 from src.visualisation.plot_stage_1 import create_feature_space_plot
 from src.visualisation.plot_stage_2 import create_hpo_search_plot
 from src.visualisation.plot_stage_3 import create_drift_detection_plots
+from src.visualisation.plot_stage_3_fast import create_drift_detection_plot_fast
 
 def main():
     """Executes the entire Quantum-Native MLOps pipeline from end to end."""
@@ -36,7 +37,17 @@ def main():
     print("-----GENERATING VISUALS-----")
     create_feature_space_plot()
     create_hpo_search_plot()
-    create_drift_detection_plots()
+
+    # --- THE VISUALIZATION SWITCH ---
+    # Choose which Stage 3 plot you want to generate by commenting/uncommenting.
+    # The FAST version is enabled by default.
+
+    # Option 1: Fast Plot (Runs in < 5 minutes)
+    create_drift_detection_plot_fast()
+
+    # Option 2: High-Quality Slow Plot (Can take 40+ minutes)
+    # To run this, comment out the line above and uncomment the line below.
+    # create_drift_detection_plots()
     
 
     print("\n==========================================================")
