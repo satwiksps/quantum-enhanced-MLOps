@@ -1,6 +1,5 @@
-# --- Visualization for Stage 3: FAST VERSION ---
-# This script generates a simplified plot quickly by using fewer data points
-# and not rendering the full decision boundary.
+# --- Visualization for Stage 3: FAST VERSION (with Confusion Matrix) ---
+# This script generates a simplified plot and its corresponding confusion matrix.
 
 import matplotlib
 matplotlib.use('Agg')
@@ -9,6 +8,8 @@ import torch
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.svm import OneClassSVM
+# --- ADD THIS IMPORT ---
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from src.feature_engineering.data_setup import get_data_loaders
 from src.feature_engineering.classical_components import Encoder
@@ -22,15 +23,14 @@ colors = {'normal': '#0077B6', 'anomalous': '#F4A261', 'support': '#E76F51'}
 
 def create_drift_detection_plot_fast():
     """
-    Generates a fast version of the drift detection plot.
+    Generates a fast version of the drift detection plot and a confusion matrix.
     """
-    print("\n[VISUALIZATION] Generating FAST plot for Stage 3: Drift Detection...")
+    print("\n[VISUALIZATION] Generating FAST plots for Stage 3: Drift Detection...")
 
     device = torch.device("cpu")
     latent_dim, img_size = 4, 14
     
-    # --- SPEED INCREASE 1: Use a much smaller dataset for the plot ---
-    N_SAMPLES_FOR_PLOT = 50  # Reduced from 200
+    N_SAMPLES_FOR_PLOT = 50
     print(f"Using a small sample size ({N_SAMPLES_FOR_PLOT}) for fast plotting...")
 
     # Load Stage 1 artifacts
@@ -57,16 +57,17 @@ def create_drift_detection_plot_fast():
     qsvm_monitor.fit(normal_features)
     
     all_features = np.concatenate([normal_features, anomalous_features])
+    # --- GET PREDICTIONS FOR THE CONFUSION MATRIX ---
+    all_predictions = qsvm_monitor.predict(all_features)
     
-    # --- SPEED INCREASE 2: Do not plot the background boundary ---
-    # We will just plot the points themselves.
     pca = PCA(n_components=2)
     features_2d = pca.fit_transform(all_features)
     normal_2d = features_2d[:len(normal_features)]
     anomalous_2d = features_2d[len(normal_features):]
 
-    # Get the support vectors - the points the SVM thinks are most important
-    support_vectors_2d = pca.transform(qsvm_monitor.support_vectors_)
+    support_vector_indices = qsvm_monitor.support_
+    support_vectors = normal_features[support_vector_indices]
+    support_vectors_2d = pca.transform(support_vectors)
 
     fig, ax = plt.subplots(figsize=(10, 8))
     
@@ -74,7 +75,6 @@ def create_drift_detection_plot_fast():
     ax.scatter(normal_2d[:, 0], normal_2d[:, 1], c=colors['normal'], label='Normal Data', s=50)
     ax.scatter(anomalous_2d[:, 0], anomalous_2d[:, 1], c=colors['anomalous'], label='Anomalous Data (Drift)', s=50)
     
-    # Highlight the support vectors to show what the SVM learned
     ax.scatter(support_vectors_2d[:, 0], support_vectors_2d[:, 1], 
                s=150, facecolors='none', edgecolors=colors['support'], linewidth=2.5,
                label='Support Vectors (Boundary Definers)')
@@ -87,3 +87,12 @@ def create_drift_detection_plot_fast():
     plt.savefig("visualization_stage_3_drift_FAST.png")
     print("--> Saved FAST drift detection plot to visualization_stage_3_drift_FAST.png")
     plt.close(fig)
+    
+    true_labels = np.array([1]*len(normal_features) + [-1]*len(anomalous_features))
+    cm = confusion_matrix(true_labels, all_predictions)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Anomalous', 'Normal'])
+    disp.plot(cmap='Blues')
+    plt.title("Drift Detection Confusion Matrix (Fast Viz)")
+    plt.savefig("visualization_stage_3_confusion_matrix_FAST.png")
+    print("--> Saved FAST confusion matrix to visualization_stage_3_confusion_matrix_FAST.png")
+    plt.close()

@@ -37,14 +37,8 @@ def main():
     print("-----GENERATING VISUALS-----")
     create_feature_space_plot()
     create_hpo_search_plot()
-
-    # --- THE VISUALIZATION SWITCH ---
-    # Choose which Stage 3 plot you want to generate by commenting/uncommenting.
-    # The FAST version is enabled by default.
-
     # Option 1: Fast Plot (Runs in < 5 minutes)
     create_drift_detection_plot_fast()
-
     # Option 2: High-Quality Slow Plot (Can take 40+ minutes)
     # To run this, comment out the line above and uncomment the line below.
     # create_drift_detection_plots()
