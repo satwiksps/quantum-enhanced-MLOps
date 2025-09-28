@@ -3,6 +3,11 @@ from src.feature_engineering.build_feature_extractor import run_feature_engineer
 from src.hyperparameter_tuning.tune_with_qaoa import run_hyperparameter_tuning
 from src.production_monitoring.monitor_with_qsvm import run_drift_detection
 
+# --- ADD IMPORTS FOR THE NEW VISUALIZATION MODULES ---
+from src.visualization.plot_stage_1 import create_feature_space_plot
+from src.visualization.plot_stage_2 import create_hpo_search_plot
+from src.visualization.plot_stage_3 import create_drift_detection_plots
+
 def main():
     """Executes the entire Quantum-Native MLOps pipeline from end to end."""
     print("==========================================================")
@@ -26,6 +31,13 @@ def main():
 
     # --- Stage 3: Production Monitoring ---
     run_drift_detection()
+    
+    # --- Stage 4: Visualization ---
+    print("-----GENERATING VISUALS-----")
+    create_feature_space_plot()
+    create_hpo_search_plot()
+    create_drift_detection_plots()
+    
 
     print("\n==========================================================")
     print("===         MLOPS PIPELINE EXECUTION COMPLETE          ===")
