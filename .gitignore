@@ -1,0 +1,42 @@
+# .gitignore for the Quantum MLOps Pipeline
+
+# --- Python Virtual Environments ---
+/qenv/
+venv/
+.venv/
+env/
+ENV/
+
+# --- Python Cache Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Generated Artifacts & Data ---
+# This section is modified to keep the directory structure.
+
+# 1. Ignore all content inside the /data/ directory...
+data/*
+# 2. ...but DO NOT ignore the .gitkeep placeholder file.
+!data/.gitkeep
+
+# 3. Ignore all content inside the feature_extractor directory...
+saved_models/feature_extractor/*
+# 4. ...but DO NOT ignore its .gitkeep placeholder.
+!saved_models/feature_extractor/.gitkeep
+
+# 5. Ignore all content inside the tuned_classifier directory...
+saved_models/tuned_classifier/*
+# 6. ...but DO NOT ignore its .gitkeep placeholder.
+!saved_models/tuned_classifier/.gitkeep
+
+# Ignore all generated visualization images
+*.png
+
+# --- OS & Editor Specific Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.ipynb_checkpoints
