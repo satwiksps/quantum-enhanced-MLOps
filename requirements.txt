@@ -1,13 +1,21 @@
-torch
-torchvision
-qiskit
-qiskit_machine_learning
-qiskit_algorithms
-qiskit-aer
-qiskit-optimization
-numpy
-matplotlib
-scikit-learn
-tqdm
-mlflow
-PyYAML
+# --- Core Frameworks & Libraries ---
+
+torch                   # For building classical neural networks (Encoder, Decoder, etc.).
+torchvision             # Provides the MNIST dataset and image tools.
+qiskit                  # The main SDK for creating and working with quantum circuits.
+qiskit_machine_learning # Provides tools for quantum machine learning models (QNN, QSVM).
+qiskit_algorithms       # Contains high-level quantum algorithms like VQE/QAOA.
+qiskit-aer              # The fast, local simulator for running quantum circuits.
+qiskit-optimization     # A specialized library for solving optimization problems (QUBO).
+
+# --- Scientific Computing & Utilities ---
+
+numpy                   # The fundamental library for all numerical and array operations.
+matplotlib              # The primary library used for creating all plots and visualizations.
+scikit-learn            # Used for its classical SVM, PCA, and performance metrics.
+tqdm                    # Creates the smart progress bars for training loops.
+
+# --- MLOps & Configuration ---
+
+mlflow                  # The platform for logging and tracking all experiment runs.
+PyYAML                  # Used to read and parse the main `config.yaml` file.

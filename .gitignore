@@ -28,6 +28,7 @@ __pycache__/
 /mlruns/
 
 # --- Generated Data & Models ---
+
 # The following rules ensure we commit the FOLDER structure but not its CONTENTS.
 
 # 1. Ignore all content inside the /data/ directory...

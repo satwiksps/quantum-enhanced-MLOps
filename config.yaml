@@ -1,32 +1,71 @@
 # ===================================================================
 # Master Configuration for the Quantum-Enhanced MLOps Pipeline
 # ===================================================================
+# This file is the single source of truth for all experiment parameters.
+# Changing a value here will change how the pipeline runs without
+# needing to modify any Python source code.
+
+# --- Project & MLflow Settings ---
+# These settings control the overall project and experiment tracking.
+
+# The name of the project, used to create the experiment in the MLflow UI.
 project_name: "quantum-enhanced-MLOps"
+
+# The local folder where MLflow will store all its logs, metrics, and artifacts.
 mlflow_tracking_uri: "mlruns"
+
+# The quantum backend to use. In this version, it is set to the local simulator.
 quantum_backend: "simulator"
+
+# Quantum Error Mitigation (QEM) Simulation flag.
+# If set to 'True', the local simulator will mimic a real, noisy quantum computer.
+# This is a powerful research feature but will make the pipeline run slower.
 use_qem: False
 
 # ===================================================================
 # Pipeline Stage Parameters (with UNIQUE keys)
 # ===================================================================
+# Each section below controls the parameters for one stage of the MLOps pipeline.
+
 stage_1_feature_engineering:
+  # Number of images to use for training the Hybrid Autoencoder.
   stage_1_n_samples: 400
+  # Number of times the autoencoder will see the entire training dataset.
   stage_1_epochs: 5
+  # The step size for the model's learning process.
   stage_1_learning_rate: 0.005
+  # Number of images to process in a single batch during training.
   stage_1_batch_size: 16
+  # The size of the "quantum feature". This directly corresponds to the number of qubits in the PQC.
   stage_1_latent_dim: 4
+  # The height and width (in pixels) to which the input MNIST images are resized.
   stage_1_img_size: 14
 
 stage_2_hyperparameter_tuning:
+  # Number of quantum features to generate for the downstream classifier's tuning process.
   stage_2_n_samples: 1000
+  # The number of repetitions (the 'p' value) in the QAOA circuit. Higher values can lead to
+  # better results but increase the circuit depth and runtime.
   stage_2_qaoa_reps: 2
+  
+  # This defines the "menu" of options for the QAOA algorithm to search through.
+  # It will find the best combination of these values.
   hyperparameter_space:
     hidden_dim: [32, 64, 128]
     learning_rate: [0.01, 0.005, 0.001]
     dropout: [0.2, 0.4, 0.6]
 
 stage_3_production_monitoring:
+  # Number of "good" (normal) data points to use for training the anomaly detector.
   stage_3_n_samples: 200
+  # An SVM-specific parameter. It's an estimate of the fraction of outliers you expect
+  # in your data and affects the tightness of the decision boundary.
   stage_3_nu_param: 0.1
+  
+  # This switch controls the speed and quality of the Stage 3 plots.
+  # 'fast':         Generates a simplified plot in < 1 minute for quick checks.
+  # 'high_quality': Generates the full, detailed plot, which can take 5-15+ minutes.
   visualization_mode: "fast" 
+  
+  # The number of data points to use ONLY when visualization_mode is set to 'fast'.
   stage_3_fast_plot_n_samples: 50
