@@ -1,4 +1,3 @@
-# --- Visualization for Stage 2: HPO Search ---
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -10,42 +9,47 @@ from src.feature_engineering.data_setup import get_data_loaders
 from src.feature_engineering.classical_components import Encoder
 from src.feature_engineering.quantum_circuits import get_quantum_torch_layer
 from src.hyperparameter_tuning.classical_classifier import evaluate_model
-from src.hyperparameter_tuning.qubo_formulation import define_hyperparameter_space
 from src.hyperparameter_tuning.tune_with_qaoa import generate_quantum_features
 
 colors = {'qaoa_solution': '#E76F51', 'random_search': '#2A9D8F'}
 
-def create_hpo_search_plot():
-    """
-    Loads artifacts and generates a 3D scatter plot comparing the QAOA solution
-    to a classical random search in the hyperparameter space.
-    """
+# The function now accepts the master config object
+def create_hpo_search_plot(config):
     print("\n[VISUALIZATION] Generating plot for Stage 2: HPO Search...")
     
+    # --- Read new, specific keys from the config file ---
+    cfg1 = config['stage_1_feature_engineering']
+    cfg2 = config['stage_2_hyperparameter_tuning']
     device = torch.device("cpu")
-    latent_dim, img_size = 4, 14
     
-    # Load Stage 1 artifacts to generate features needed for evaluation
-    encoder = Encoder(latent_dim, img_size)
+    # Load Stage 1 artifacts
+    encoder = Encoder(cfg1['stage_1_latent_dim'], cfg1['stage_1_img_size'])
     encoder.load_state_dict(torch.load("saved_models/feature_extractor/hae_encoder.pth"))
-    quantum_layer = get_quantum_torch_layer(latent_dim)
+    quantum_layer = get_quantum_torch_layer(cfg1['stage_1_latent_dim'])
     pqc_weights = np.load("saved_models/feature_extractor/hae_pqc_weights.npy")
     quantum_layer.weight = torch.nn.Parameter(torch.Tensor(pqc_weights))
     
-    vis_loader, _ = get_data_loaders(batch_size=400, n_samples=400, img_size=img_size)
+    # Generate features needed for evaluation
+    vis_loader, _ = get_data_loaders(
+        batch_size=cfg1['stage_1_n_samples'], 
+        n_samples=cfg1['stage_1_n_samples'], 
+        img_size=cfg1['stage_1_img_size']
+    )
     features, labels = generate_quantum_features(encoder, quantum_layer, vis_loader, device)
 
-    # We know the QAOA result from the pipeline, so we can define it here
+    # We know the QAOA result, so we can define it here
     qaoa_hyperparams = {'hidden_dim': 128, 'lr': 0.001, 'dropout': 0.6}
     qaoa_accuracy = evaluate_model(qaoa_hyperparams, features, labels)
     
+    # Get the search space from the config file
+    space = cfg2['hyperparameter_space']
+    
     # Simulate a classical random search for comparison
-    space = define_hyperparameter_space()
     random_search_results = []
     for _ in range(20):
         hyperparams = {
             'hidden_dim': random.choice(space['hidden_dim']),
-            'lr': random.choice(space['lr']),
+            'lr': random.choice(space['learning_rate']),
             'dropout': random.choice(space['dropout'])
         }
         accuracy = evaluate_model(hyperparams, features, labels)
@@ -69,6 +73,3 @@ def create_hpo_search_plot():
     plt.savefig("visualization_stage_2_hpo_search.png")
     print("--> Saved HPO search plot to visualization_stage_2_hpo_search.png")
     plt.close(fig)
-
-if __name__ == '__main__':
-    create_hpo_search_plot()

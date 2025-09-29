@@ -1,4 +1,3 @@
-# Core Frameworks
 torch
 torchvision
 qiskit
@@ -6,9 +5,9 @@ qiskit_machine_learning
 qiskit_algorithms
 qiskit-aer
 qiskit-optimization
-
-# Utility and Data Handling
 numpy
 matplotlib
 scikit-learn
 tqdm
+mlflow
+PyYAML

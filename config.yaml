@@ -1,0 +1,32 @@
+# ===================================================================
+# Master Configuration for the Quantum-Enhanced MLOps Pipeline
+# ===================================================================
+project_name: "quantum-enhanced-MLOps"
+mlflow_tracking_uri: "mlruns"
+quantum_backend: "simulator"
+use_qem: False
+
+# ===================================================================
+# Pipeline Stage Parameters (with UNIQUE keys)
+# ===================================================================
+stage_1_feature_engineering:
+  stage_1_n_samples: 400
+  stage_1_epochs: 5
+  stage_1_learning_rate: 0.005
+  stage_1_batch_size: 16
+  stage_1_latent_dim: 4
+  stage_1_img_size: 14
+
+stage_2_hyperparameter_tuning:
+  stage_2_n_samples: 1000
+  stage_2_qaoa_reps: 2
+  hyperparameter_space:
+    hidden_dim: [32, 64, 128]
+    learning_rate: [0.01, 0.005, 0.001]
+    dropout: [0.2, 0.4, 0.6]
+
+stage_3_production_monitoring:
+  stage_3_n_samples: 200
+  stage_3_nu_param: 0.1
+  visualization_mode: "fast" 
+  stage_3_fast_plot_n_samples: 50

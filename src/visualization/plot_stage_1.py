@@ -1,4 +1,3 @@
-# --- Visualization for Stage 1: Feature Space ---
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -11,28 +10,30 @@ from src.feature_engineering.classical_components import Encoder
 from src.feature_engineering.quantum_circuits import get_quantum_torch_layer
 from src.hyperparameter_tuning.tune_with_qaoa import generate_quantum_features
 
-def create_feature_space_plot():
-    """
-    Loads the trained feature extractor and generates a 2D PCA plot of the
-    quantum-native feature space, colored by digit class.
-    """
+# The function now accepts the master config object
+def create_feature_space_plot(config):
     print("\n[VISUALIZATION] Generating plot for Stage 1: Feature Space...")
     
+    # --- Read new, specific keys from the config file ---
+    cfg1 = config['stage_1_feature_engineering']
     device = torch.device("cpu")
-    latent_dim, img_size = 4, 14
-
-    # Load the saved artifacts from the main pipeline run
-    encoder = Encoder(latent_dim, img_size)
+    
+    # Load the saved artifacts
+    encoder = Encoder(cfg1['stage_1_latent_dim'], cfg1['stage_1_img_size'])
     encoder.load_state_dict(torch.load("saved_models/feature_extractor/hae_encoder.pth"))
     encoder.to(device)
     
-    quantum_layer = get_quantum_torch_layer(latent_dim)
+    quantum_layer = get_quantum_torch_layer(cfg1['stage_1_latent_dim'])
     pqc_weights = np.load("saved_models/feature_extractor/hae_pqc_weights.npy")
     quantum_layer.weight = torch.nn.Parameter(torch.Tensor(pqc_weights))
     quantum_layer.to(device)
 
-    # Generate features to plot
-    vis_loader, _ = get_data_loaders(batch_size=400, n_samples=400, img_size=img_size)
+    # Generate features to plot using config parameters
+    vis_loader, _ = get_data_loaders(
+        batch_size=cfg1['stage_1_n_samples'], 
+        n_samples=cfg1['stage_1_n_samples'], 
+        img_size=cfg1['stage_1_img_size']
+    )
     features, labels = generate_quantum_features(encoder, quantum_layer, vis_loader, device)
     
     # Create the plot
@@ -50,6 +51,3 @@ def create_feature_space_plot():
     plt.savefig("visualization_stage_1_feature_space.png")
     print("--> Saved feature space plot to visualization_stage_1_feature_space.png")
     plt.close(fig)
-
-if __name__ == '__main__':
-    create_feature_space_plot()

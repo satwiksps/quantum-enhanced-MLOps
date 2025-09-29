@@ -4,6 +4,7 @@ import torch.optim as optim
 import numpy as np
 import os
 from tqdm import tqdm
+import mlflow
 
 from .data_setup import get_data_loaders
 from .classical_components import Encoder, Decoder
@@ -23,28 +24,29 @@ class HybridAutoencoder(nn.Module):
         reconstructed_image = self.decoder(quantum_output)
         return reconstructed_image
 
-def run_feature_engineering(latent_dim=4, epochs=5, lr=0.001, batch_size=32, n_samples=600, img_size=14):
-    """Main function to orchestrate the training of the Hybrid Autoencoder."""
+def run_feature_engineering(config):
     print("--- MLOps Stage 1: Building Quantum-Native Feature Extractor ---")
-    
+    cfg = config['stage_1_feature_engineering']
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     
-    train_loader, _ = get_data_loaders(batch_size, n_samples, img_size)
-    
-    encoder = Encoder(latent_dim, img_size).to(device)
-    quantum_layer = get_quantum_torch_layer(latent_dim).to(device)
-    decoder = Decoder(latent_dim, img_size).to(device)
+    train_loader, _ = get_data_loaders(
+        batch_size=cfg['stage_1_batch_size'], 
+        n_samples=cfg['stage_1_n_samples'], 
+        img_size=cfg['stage_1_img_size']
+    )
+    encoder = Encoder(cfg['stage_1_latent_dim'], cfg['stage_1_img_size']).to(device)
+    quantum_layer = get_quantum_torch_layer(cfg['stage_1_latent_dim']).to(device)
+    decoder = Decoder(cfg['stage_1_latent_dim'], cfg['stage_1_img_size']).to(device)
     model = HybridAutoencoder(encoder, quantum_layer, decoder).to(device)
-    
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=cfg['stage_1_learning_rate'])
     
     print("\nStarting Hybrid Autoencoder training...")
-    for epoch in range(epochs):
+    for epoch in range(cfg['stage_1_epochs']):
         model.train()
         running_loss = 0.0
-        progress_bar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")
+        progress_bar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{cfg['stage_1_epochs']}")
         for images, _ in progress_bar:
             images = images.to(device)
             optimizer.zero_grad()
@@ -54,22 +56,23 @@ def run_feature_engineering(latent_dim=4, epochs=5, lr=0.001, batch_size=32, n_s
             optimizer.step()
             running_loss += loss.item()
             progress_bar.set_postfix(loss=loss.item())
-
         avg_loss = running_loss / len(train_loader)
-        print(f"Epoch [{epoch+1}/{epochs}], Average Training Loss: {avg_loss:.4f}")
+        print(f"Epoch [{epoch+1}/{cfg['stage_1_epochs']}], Average Training Loss: {avg_loss:.4f}")
+        mlflow.log_metric(f"stage_1_epoch_{epoch+1}_loss", avg_loss)
 
     print("\nTraining finished.")
-
     save_dir = "saved_models/feature_extractor"
     os.makedirs(save_dir, exist_ok=True)
-    
     encoder_path = os.path.join(save_dir, "hae_encoder.pth")
     torch.save(model.encoder.state_dict(), encoder_path)
     print(f"Trained classical encoder saved to {encoder_path}")
-    
     pqc_weights_path = os.path.join(save_dir, "hae_pqc_weights.npy")
     pqc_weights = model.quantum_layer.weight.cpu().detach().numpy()
     np.save(pqc_weights_path, pqc_weights)
     print(f"Trained PQC weights saved to {pqc_weights_path}")
+    
+    print("Logging model artifacts to MLflow...")
+    mlflow.log_artifact(encoder_path, artifact_path="stage_1_feature_extractor")
+    mlflow.log_artifact(pqc_weights_path, artifact_path="stage_1_feature_extractor")
     
     print("\n--- Feature Engineering Stage Complete ---")
