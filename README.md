@@ -10,8 +10,6 @@ This repository contains a novel, end-to-end Quantum MLOps (QMLOps) pipeline tha
 This project is not a single model, but a complete, automated system composed of three distinct stages. It is designed to be a blueprint for a fully operational, closed-loop MLOps pipeline, where the output of one stage seamlessly becomes the input for the next.
 
 
-*(**Action Required:** Create a simple diagram showing your three stages and the closed-loop trigger, save it as `pipeline_architecture.png` in a `docs/images` folder, and update this link.)*
-
 ---
 
 ## Key Features
@@ -147,7 +145,7 @@ The Hybrid Autoencoder successfully learns to map the high-dimensional image dat
 
 *This demonstrates that the quantum features are meaningful and well-separated.*
 
-`![Feature Space Plot](visualization_stage_1_feature_space.png)`
+![Feature Space Plot](visualization_stage_1_feature_space.png)
 
 ---
 
@@ -158,7 +156,7 @@ This 3D plot visualizes the hyperparameter search space. The scattered teal dots
 
 *This demonstrates that the quantum optimizer intelligently finds the best solution.*
 
-`![HPO Search Plot](visualization_stage_2_hpo_search.png)`
+![HPO Search Plot](visualization_stage_2_hpo_search.png)
 
 ---
 
@@ -169,11 +167,11 @@ This plot shows our anomaly detector in action. The Quantum SVM has learned a so
 
 *This demonstrates the monitor's sensitivity in detecting subtle data drift.*
 
-`![Drift Detection Plot](visualization_stage_3_drift_boundary.png)`
+![Drift Detection Plot](visualization_stage_3_drift_FAST.png)
 
 The performance is quantified in the confusion matrix, which shows a high rate of successful drift detection.
 
-`![Confusion Matrix](visualization_stage_3_confusion_matrix_HIGH_QUALITY.png)`
+![Confusion Matrix](visualization_stage_3_confusion_matrix_FAST.png)
 
 ---
 ## License
