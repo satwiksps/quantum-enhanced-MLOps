@@ -22,7 +22,6 @@ __pycache__/
 # ===================================================================
 
 # --- MLflow ---
-# ** NEW **
 # Ignore the entire MLflow tracking directory. This contains all experiment
 # logs, metrics, params, and artifacts, and can grow very large.
 /mlruns/

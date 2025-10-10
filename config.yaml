@@ -29,9 +29,9 @@ use_qem: False
 
 stage_1_feature_engineering:
   # Number of images to use for training the Hybrid Autoencoder.
-  stage_1_n_samples: 400
+  stage_1_n_samples: 100 # 100 for quick tests, 1000 for real runs
   # Number of times the autoencoder will see the entire training dataset.
-  stage_1_epochs: 5
+  stage_1_epochs: 2 # 2 for quick tests, 10 for real runs
   # The step size for the model's learning process.
   stage_1_learning_rate: 0.005
   # Number of images to process in a single batch during training.
@@ -43,10 +43,10 @@ stage_1_feature_engineering:
 
 stage_2_hyperparameter_tuning:
   # Number of quantum features to generate for the downstream classifier's tuning process.
-  stage_2_n_samples: 1000
+  stage_2_n_samples: 200 # 200 for quick tests, 2000 for real runs
   # The number of repetitions (the 'p' value) in the QAOA circuit. Higher values can lead to
   # better results but increase the circuit depth and runtime.
-  stage_2_qaoa_reps: 2
+  stage_2_qaoa_reps: 1 # 1 for quick tests, 2 for real runs
   
   # This defines the "menu" of options for the QAOA algorithm to search through.
   # It will find the best combination of these values.
@@ -57,15 +57,15 @@ stage_2_hyperparameter_tuning:
 
 stage_3_production_monitoring:
   # Number of "good" (normal) data points to use for training the anomaly detector.
-  stage_3_n_samples: 200
+  stage_3_n_samples: 50 # 50 for quick tests, 200 for real runs
   # An SVM-specific parameter. It's an estimate of the fraction of outliers you expect
   # in your data and affects the tightness of the decision boundary.
-  stage_3_nu_param: 0.1
+  stage_3_nu_param: 0.1 
   
   # This switch controls the speed and quality of the Stage 3 plots.
   # 'fast':         Generates a simplified plot in < 1 minute for quick checks.
   # 'high_quality': Generates the full, detailed plot, which can take 5-15+ minutes.
-  visualization_mode: "fast" 
+  visualization_mode: "fast" # Options: 'fast', 'high_quality'
   
   # The number of data points to use ONLY when visualization_mode is set to 'fast'.
-  stage_3_fast_plot_n_samples: 50
+  stage_3_fast_plot_n_samples: 50 
